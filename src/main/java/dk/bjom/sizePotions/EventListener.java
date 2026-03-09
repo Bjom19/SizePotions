@@ -32,6 +32,7 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
+        if (!config.getBoolean("health_scaling_enabled", true)) return;
         Player player = event.getPlayer();
         AttributeInstance scaleAttr = player.getAttribute(Attribute.SCALE);
         if (scaleAttr == null) return;
@@ -90,8 +91,9 @@ public class EventListener implements Listener {
         entity.addPotionEffect(new PotionEffect(PotionEffectType.LUCK, duration, 0, false, true, true));
 
         if (entity instanceof Player player) {
-            // Reset health scale to default for players
-            player.setHealthScale(config.getInt("base_health", 20));
+            if (config.getBoolean("health_scaling_enabled", true)) {
+                player.setHealthScale(config.getInt("base_health", 20));
+            }
             player.sendActionBar(Component.text("Your size has been reset to normal temporarily.", NamedTextColor.GREEN));
         }
     }
@@ -128,9 +130,8 @@ public class EventListener implements Listener {
         // doesn't trigger a second restore
         entity.getPersistentDataContainer().remove(originalScaleKey);
 
-        if (entity instanceof Player player) {
-            double newHealth = SizePotions.calcPlayerHealthFromScale(originalScale);
-            player.setHealthScale(newHealth);
+        if (entity instanceof Player player && config.getBoolean("health_scaling_enabled", true)) {
+            player.setHealthScale(SizePotions.calcPlayerHealthFromScale(originalScale));
         }
     }
 

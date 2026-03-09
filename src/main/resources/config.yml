@@ -1,5 +1,9 @@
 # === Health Scaling Settings ===
 
+# Set to false to disable health scaling entirely (players keep vanilla 20 HP regardless of size)
+health_scaling_enabled: true
+
+
 # Base health for a normal-sized player (scale 1.0)
 base_health: 20
 
@@ -13,3 +17,8 @@ min_health: 6
 # The scale range allowed on this server.
 min_scale: 0.1
 max_scale: 3.0
+
+# === Potion Appearance ===
+
+# Color of the Normalization Potion (hex RGB, without #)
+potion_color: "FFFFFF"

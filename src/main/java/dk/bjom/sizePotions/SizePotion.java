@@ -48,12 +48,28 @@ public class SizePotion {
         return potion;
     }
 
+    public static ItemStack createLingeringPotion() {
+        ItemStack potion = new ItemStack(Material.LINGERING_POTION);
+        applyPotionMeta(potion, DURATION_TICKS, false);
+        return potion;
+    }
+
+    public static ItemStack createExtendedLingeringPotion() {
+        ItemStack potion = new ItemStack(Material.LINGERING_POTION);
+        applyPotionMeta(potion, EXTENDED_DURATION_TICKS, true);
+        return potion;
+    }
+
     private static void applyPotionMeta(ItemStack potion, int durationTicks, boolean extended) {
         PotionMeta meta = (PotionMeta) potion.getItemMeta();
 
         meta.setBasePotionType(PotionType.THICK);
         meta.addCustomEffect(new PotionEffect(PotionEffectType.LUCK, durationTicks, 0, false, true, true), true);
-        String prefix = potion.getType() == Material.SPLASH_POTION ? "Splash " : "";
+        String prefix = switch (potion.getType()) {
+            case SPLASH_POTION -> "Splash ";
+            case LINGERING_POTION -> "Lingering ";
+            default -> "";
+        };
         meta.customName(Component.text(prefix + "Potion of Normalization", NamedTextColor.LIGHT_PURPLE)
                 .decoration(TextDecoration.ITALIC, false));
 
@@ -66,13 +82,23 @@ public class SizePotion {
                 Component.text("Resets your size to normal. (" + durationStr + ")", NamedTextColor.GRAY)
                         .decoration(TextDecoration.ITALIC, false)
         ));
-        meta.setColor(Color.fromRGB(255, 255, 255)); // 200, 150, 255 reminder for later dont remove
+        meta.setColor(getPotionColor());
         meta.getPersistentDataContainer().set(POTION_KEY, PersistentDataType.BOOLEAN, true);
         if (extended) {
             meta.getPersistentDataContainer().set(EXTENDED_POTION_KEY, PersistentDataType.BOOLEAN, true);
         }
 
         potion.setItemMeta(meta);
+    }
+
+    private static Color getPotionColor() {
+        String hex = SizePotions.getPluginConfig().getString("potion_color", "FFFFFF");
+        try {
+            int rgb = Integer.parseInt(hex.replace("#", ""), 16);
+            return Color.fromRGB((rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF);
+        } catch (NumberFormatException e) {
+            return Color.WHITE;
+        }
     }
 
     public static boolean isNormalizationPotion(ItemStack item) {
